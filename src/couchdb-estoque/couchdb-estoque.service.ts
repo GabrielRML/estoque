@@ -5,7 +5,7 @@ import { ICouchDBEstoque } from './interface/couchdb-estoque.interface';
 
 @Injectable()
 export class CouchDBEstoqueService {
-  private readonly couch = nano('http://localhost:5984');
+  private readonly couch = nano('http://admin:password@localhost:5984');
   private readonly db = this.couch.db.use('estoque_loja');
 
   async create(createEstoqueDto: CreateCouchDBEstoqueDto): Promise<any> {
@@ -30,13 +30,29 @@ export class CouchDBEstoqueService {
 
   async updateQuantidade(id_estoque: string, quantidade: number): Promise<any> {
     try {
-      const doc = (await this.db.get(id_estoque)) as ICouchDBEstoque;
+      const result = await this.db.find({
+        selector: {
+          id_estoque: id_estoque,
+        },
+        limit: 1,
+      });
+
+      if (result.docs.length === 0) {
+        throw new Error(
+          `Documento com id_estoque ${id_estoque} não encontrado`,
+        );
+      }
+
+      const doc = result.docs[0] as ICouchDBEstoque;
+
       doc.quantidade = quantidade;
+
       const response = await this.db.insert(doc);
+
       return response;
     } catch (error) {
       throw new Error(
-        `Error updating quantity for ${id_estoque}: ${error.message}`,
+        `Erro ao atualizar a quantidade para ${id_estoque}: ${error.message}`,
       );
     }
   }
