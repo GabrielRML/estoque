@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as nano from 'nano';
 import { CreateCouchDBEstoqueDto } from './dto/create-couchdb-estoque.dto';
+import { ICouchDBEstoque } from './interface/couchdb-estoque.interface';
 
 @Injectable()
 export class CouchDBEstoqueService {
@@ -24,6 +25,19 @@ export class CouchDBEstoqueService {
       return await this.db.get(id_estoque);
     } catch (error) {
       throw new Error('Error fetching document from CouchDB');
+    }
+  }
+
+  async updateQuantidade(id_estoque: string, quantidade: number): Promise<any> {
+    try {
+      const doc = (await this.db.get(id_estoque)) as ICouchDBEstoque;
+      doc.quantidade = quantidade;
+      const response = await this.db.insert(doc);
+      return response;
+    } catch (error) {
+      throw new Error(
+        `Error updating quantity for ${id_estoque}: ${error.message}`,
+      );
     }
   }
 }

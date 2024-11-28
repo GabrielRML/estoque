@@ -6,5 +6,6 @@ import { CouchDBEstoqueController } from './couchdb-estoque.controller';
   imports: [],
   controllers: [CouchDBEstoqueController],
   providers: [CouchDBEstoqueService],
+  exports: [CouchDBEstoqueService],
 })
 export class CouchDBEstoqueModule {}

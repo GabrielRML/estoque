@@ -29,9 +29,12 @@ export class MongoEstoqueController {
     return this.estoqueService.findOne(id);
   }
 
-  @Put(':id')
-  update(@Param('id') id: string, @Body() updateEstoqueDto: any) {
-    return this.estoqueService.update(id, updateEstoqueDto);
+  @Put(':estoque_id/:quantidade')
+  update(
+    @Param('estoque_id') estoqueId: string,
+    @Param('quantidade') quantidade: number,
+  ) {
+    return this.estoqueService.update(estoqueId, quantidade);
   }
 
   @Delete(':id')

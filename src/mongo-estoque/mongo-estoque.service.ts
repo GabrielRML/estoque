@@ -2,38 +2,40 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { MongoEstoque } from './schema/mongo-estoque.schema';
+import { CouchDBEstoqueService } from 'src/couchdb-estoque/couchdb-estoque.service';
 
 @Injectable()
 export class MongoEstoqueService {
   constructor(
     @InjectModel('MongoEstoque')
     private readonly estoqueModel: Model<MongoEstoque>,
+    private readonly couchDBEstoqueService: CouchDBEstoqueService,
   ) {}
 
-  // Método para criar um novo estoque
   async create(createEstoqueDto: any): Promise<MongoEstoque> {
     const createdEstoque = new this.estoqueModel(createEstoqueDto);
     return createdEstoque.save();
   }
 
-  // Método para buscar todos os estoques
   async findAll(): Promise<MongoEstoque[]> {
     return this.estoqueModel.find().exec();
   }
 
-  // Método para buscar um estoque específico
   async findOne(id: string): Promise<MongoEstoque> {
     return this.estoqueModel.findOne({ id_estoque: id }).exec();
   }
 
-  // Método para atualizar um estoque
-  async update(id: string, updateEstoqueDto: any): Promise<MongoEstoque> {
-    return this.estoqueModel
-      .findOneAndUpdate({ id_estoque: id }, updateEstoqueDto, { new: true })
+  async update(estoqueId: string, quantidade: number): Promise<MongoEstoque> {
+    this.couchDBEstoqueService.updateQuantidade(estoqueId, quantidade);
+    return await this.estoqueModel
+      .findOneAndUpdate(
+        { id_estoque: estoqueId },
+        { quantidade },
+        { new: true },
+      )
       .exec();
   }
 
-  // Método para deletar um estoque
   async remove(id: string): Promise<any> {
     return this.estoqueModel.deleteOne({ id_estoque: id }).exec();
   }
